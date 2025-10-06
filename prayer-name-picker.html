@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Name Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            min-width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .names-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .names-list h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .names {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .name-tag {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        #pickButton {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        #pickButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #pickButton:active {
+            transform: translateY(0);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selected-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Edit functionality styles */
+        .edit-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .name-tag {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .name-tag.editable:hover {
+            background: #d4edda;
+            cursor: pointer;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        #nameInput {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #nameInput:focus {
+            border-color: #667eea;
+        }
+
+        .add-btn, .toggle-edit-btn, .reset-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-edit-btn {
+            background: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .reset-btn {
+            background: #dc3545;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+        }
+
+        .toggle-edit-btn:hover {
+            background: #5a67d8;
+        }
+
+        .reset-btn:hover {
+            background: #c82333;
+        }
+
+        .edit-mode-active .name-tag {
+            padding-right: 25px;
+        }
+
+        .edit-input {
+            background: white;
+            border: 1px solid #667eea;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 12px;
+            width: 80px;
+        }
+
+        /* Recent picks styles */
+        .recent-picks {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .recent-picks h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            font-size: 14px;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .recent-tag {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            border: 1px solid #f5c6cb;
+            transition: all 0.3s ease;
+        }
+
+        .clear-recent-btn {
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-recent-btn:hover {
+            background: #e0a800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🙏 Dale's Prayer Name Picker</h1>
+        
+        <div class="names-list">
+            <h3>Available Names:</h3>
+            <button class="toggle-edit-btn" id="toggleEditBtn">✏️ Edit Names</button>
+            <div class="names" id="namesList"></div>
+            <div class="edit-controls" id="editControls" style="display: none;">
+                <input type="text" id="nameInput" placeholder="Enter new name..." maxlength="20">
+                <button class="add-btn" id="addNameBtn">Add Name</button>
+                <button class="reset-btn" id="resetBtn">Reset to Defaults</button>
+            </div>
+        </div>
+
+        <button id="pickButton">Pick a Random Name to Pray</button>
+
+        <div id="result">
+            <span class="placeholder">Click the button to select a random name to pray!</span>
+        </div>
+
+        <div class="recent-picks" id="recentPicks" style="display: none;">
+            <h4>🕰️ Recent Prayers (won't be selected again yet):</h4>
+            <div class="recent-list" id="recentList"></div>
+            <button class="clear-recent-btn" id="clearRecentBtn">Clear History</button>
+        </div>
+    </div>
+
+    <script>
+        // Convert PowerShell array to JavaScript array
+        const defaultNames = ["Mark", "Dale", "Brian", "Kyle", "Derek", "Jim", "Cameron", "Cliff", "Luke", "Cherie", "Jesse"];
+        let names = loadNames();
+        let editMode = false;
+        let recentPicks = loadRecentPicks(); // Track last 5 picks
+
+        // Load names from localStorage or use defaults
+        function loadNames() {
+            const saved = localStorage.getItem('prayerNames');
+            return saved ? JSON.parse(saved) : [...defaultNames];
+        }
+
+        // Save names to localStorage
+        function saveNames() {
+            localStorage.setItem('prayerNames', JSON.stringify(names));
+        }
+
+        // Load recent picks from localStorage
+        function loadRecentPicks() {
+            const saved = localStorage.getItem('recentPrayerPicks');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        // Save recent picks to localStorage
+        function saveRecentPicks() {
+            localStorage.setItem('recentPrayerPicks', JSON.stringify(recentPicks));
+        }
+
+        // Add a name to recent picks (maintains max 5)
+        function addToRecentPicks(name) {
+            // Remove if already exists to avoid duplicates
+            recentPicks = recentPicks.filter(pick => pick !== name);
+            // Add to beginning
+            recentPicks.unshift(name);
+            // Keep only last 5
+            if (recentPicks.length > 5) {
+                recentPicks = recentPicks.slice(0, 5);
+            }
+            saveRecentPicks();
+        }
+
+        // Function to pick a random name (equivalent to Get-Random -InputObject)
+        function getRandomName() {
+            if (names.length === 0) {
+                return "No names available";
+            }
+
+            // Get available names (exclude recent picks)
+            let availableNames = names.filter(name => !recentPicks.includes(name));
+            
+            // If all names are in recent picks, reset and use all names
+            if (availableNames.length === 0) {
+                availableNames = [...names];
+                // Clear recent picks since everyone has been selected
+                recentPicks = [];
+                saveRecentPicks();
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableNames.length);
+            return availableNames[randomIndex];
+        }
+
+        // Function to display the selected name (equivalent to Write-Host)
+        function displaySelectedName(selectedName) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<span class="selected-name">Selected name: ${selectedName}</span>`;
+        }
+
+        // Display all available names
+        function displayNamesList() {
+            const namesListDiv = document.getElementById('namesList');
+            const containerDiv = document.querySelector('.names-list');
+            
+            if (editMode) {
+                containerDiv.classList.add('edit-mode-active');
+                namesListDiv.innerHTML = names.map((name, index) => 
+                    `<span class="name-tag editable" onclick="editName(${index})">${name}<button class="remove-btn" onclick="removeName(${index}, event)" title="Remove ${name}">×</button></span>`
+                ).join('');
+            } else {
+                containerDiv.classList.remove('edit-mode-active');
+                namesListDiv.innerHTML = names.map(name => 
+                    `<span class="name-tag">${name}</span>`
+                ).join('');
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            editMode = !editMode;
+            const toggleBtn = document.getElementById('toggleEditBtn');
+            const editControls = document.getElementById('editControls');
+            
+            if (editMode) {
+                toggleBtn.textContent = '✅ Done Editing';
+                editControls.style.display = 'flex';
+            } else {
+                toggleBtn.textContent = '✏️ Edit Names';
+                editControls.style.display = 'none';
+            }
+            
+            displayNamesList();
+        }
+
+        // Add a new name
+        function addName() {
+            const nameInput = document.getElementById('nameInput');
+            const newName = nameInput.value.trim();
+            
+            if (newName && !names.includes(newName)) {
+                names.push(newName);
+                saveNames(); // Save to localStorage
+                nameInput.value = '';
+                displayNamesList();
+            } else if (names.includes(newName)) {
+                alert('This name is already in the list!');
+            } else {
+                alert('Please enter a valid name!');
+            }
+        }
+
+        // Remove a name
+        function removeName(index, event) {
+            event.stopPropagation(); // Prevent triggering the edit function
+            if (confirm(`Remove "${names[index]}" from the list?`)) {
+                names.splice(index, 1);
+                saveNames(); // Save to localStorage
+                displayNamesList();
+            }
+        }
+
+        // Edit a name inline
+        function editName(index) {
+            const currentName = names[index];
+            const newName = prompt(`Edit name:`, currentName);
+            
+            if (newName && newName.trim() && newName.trim() !== currentName) {
+                const trimmedName = newName.trim();
+                if (!names.includes(trimmedName)) {
+                    names[index] = trimmedName;
+                    saveNames(); // Save to localStorage
+                    displayNamesList();
+                } else {
+                    alert('This name is already in the list!');
+                }
+            }
+        }
+
+        // Reset names to original defaults
+        function resetToDefaults() {
+            if (confirm('Reset to original names? This will remove all your custom names.')) {
+                names = [...defaultNames];
+                saveNames(); // Save to localStorage
+                displayNamesList();
+            }
+        }
+
+        // Update the recent picks display
+        function updateRecentPicksDisplay() {
+            const recentPicksDiv = document.getElementById('recentPicks');
+            const recentListDiv = document.getElementById('recentList');
+            
+            if (recentPicks.length > 0) {
+                recentPicksDiv.style.display = 'block';
+                recentListDiv.innerHTML = recentPicks.map((name, index) => 
+                    `<span class="recent-tag" style="opacity: ${1 - (index * 0.15)}">${name}</span>`
+                ).join('');
+            } else {
+                recentPicksDiv.style.display = 'none';
+            }
+        }
+
+        // Clear recent picks history
+        function clearRecentPicks() {
+            if (confirm('Clear recent prayer history? All names will be available for selection again.')) {
+                recentPicks = [];
+                saveRecentPicks();
+                updateRecentPicksDisplay();
+            }
+        }
+
+        // Main function to pick and display a random name
+        function pickRandomName() {
+            if (names.length === 0) {
+                displaySelectedName("Please add some names first!");
+                return;
+            }
+            const randomName = getRandomName();
+            // Add to recent picks to avoid selecting again soon
+            addToRecentPicks(randomName);
+            displaySelectedName(randomName);
+            updateRecentPicksDisplay();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            displayNamesList();
+            
+            document.getElementById('pickButton').addEventListener('click', pickRandomName);
+            document.getElementById('toggleEditBtn').addEventListener('click', toggleEditMode);
+            document.getElementById('addNameBtn').addEventListener('click', addName);
+            document.getElementById('resetBtn').addEventListener('click', resetToDefaults);
+            document.getElementById('clearRecentBtn').addEventListener('click', clearRecentPicks);
+            
+            // Initialize recent picks display
+            updateRecentPicksDisplay();
+            
+            // Allow Enter key to add names
+            document.getElementById('nameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addName();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
